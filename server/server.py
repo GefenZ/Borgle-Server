@@ -1,13 +1,24 @@
 from multiprocessing.connection import Client
 import socket
 import os
+import sys
 from _thread import *
+from enum import IntEnum
+
+
+class Type(IntEnum):
+    REGISTER = 0
+    GET_USERS = 1
+    SUBMIT = 2
+    FIGHT = 3
+
 
 def threaded_client(connection):
     connection.send(str.encode('Welcome to the server\n'))
     while True:
+        req_type = Type(connection.recv(sys.getsizeof(int))[0])
         data = connection.recv(2048)
-        reply = 'Server says: ' + data.decode('utf-8')
+        reply = 'Server says: ' + req_type.name + " with data: " + data.decode('utf-8')
         if not data:
             break
         connection.sendall(str.encode(reply))
